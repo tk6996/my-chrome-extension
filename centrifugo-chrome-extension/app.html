@@ -16,6 +16,21 @@
   <div class="layout">
     <aside class="sidebar">
       <section class="panel">
+        <label>Saved Connections
+          <select id="connectionSelect">
+            <option value="">-- New Connection --</option>
+          </select>
+        </label>
+        <label>Name
+          <input id="connectionName" type="text" placeholder="e.g. Staging" />
+        </label>
+        <div class="button-row">
+          <button id="saveConnectionBtn" class="btn-primary">Save</button>
+          <button id="deleteConnectionBtn" disabled>Delete</button>
+        </div>
+      </section>
+
+      <section class="panel">
         <label>WebSocket URL
           <input id="wsUrl" type="text" placeholder="wss://example.com/connection/websocket" />
         </label>

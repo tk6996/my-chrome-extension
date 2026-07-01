@@ -18,6 +18,11 @@
   --log-recv: #1e9e56;
   --log-error: #e0473f;
   --log-info: #8a8f98;
+  --json-key: #953800;
+  --json-string: #1e9e56;
+  --json-number: #3568e0;
+  --json-boolean: #a626a4;
+  --json-null: #9aa0a6;
 }
 
 [data-theme="dark"] {
@@ -39,6 +44,11 @@
   --log-recv: #4fd894;
   --log-error: #ff8a82;
   --log-info: #8a8f98;
+  --json-key: #e0a45c;
+  --json-string: #4fd894;
+  --json-number: #7ea0ff;
+  --json-boolean: #d093e8;
+  --json-null: #9a9ea6;
 }
 
 * {
@@ -170,6 +180,7 @@ label {
 
 input[type="text"],
 input[type="password"],
+select,
 textarea {
   width: 100%;
   padding: 8px 10px;
@@ -185,6 +196,7 @@ textarea {
 
 input[type="text"]:focus,
 input[type="password"]:focus,
+select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--accent);
@@ -295,4 +307,39 @@ button:disabled {
 
 .log-tag-info {
   color: var(--log-info);
+}
+
+.log-json {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: Consolas, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.json-key {
+  color: var(--json-key);
+}
+
+.json-string {
+  color: var(--json-string);
+}
+
+.json-number {
+  color: var(--json-number);
+}
+
+.json-boolean {
+  color: var(--json-boolean);
+  font-weight: 600;
+}
+
+.json-null {
+  color: var(--json-null);
+  font-style: italic;
 }

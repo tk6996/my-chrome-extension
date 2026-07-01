@@ -47,9 +47,9 @@ function bytesToUtf8(bytes) {
   return new TextDecoder().decode(bytes);
 }
 
-function decodeInput(value, format) {
+function decodeInput(value, format, fieldName = "Input") {
   value = value.trim();
-  if (!value) throw new Error("Input is empty.");
+  if (!value) throw new Error(`${fieldName} is empty.`);
   switch (format) {
     case "hex":     return hexToBytes(value);
     case "base64":  return base64ToBytes(value);
@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
       hideError();
       document.getElementById("output-section").style.display = "none";
+      updateNonceMode();
     });
   });
 
@@ -195,22 +196,23 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const keyBytes = decodeInput(
         document.getElementById("key-input").value,
-        document.getElementById("key-format").value
+        document.getElementById("key-format").value,
+        "Key"
       );
       const iv = decodeInput(
         document.getElementById("iv-input").value,
-        document.getElementById("iv-format").value
+        document.getElementById("iv-format").value,
+        "IV"
       );
       const plaintext = decodeInput(
         document.getElementById("plaintext-input").value,
-        document.getElementById("plaintext-format").value
+        document.getElementById("plaintext-format").value,
+        "Plaintext"
       );
       const aadRaw = document.getElementById("aad-input").value.trim();
       const aad = aadRaw
-        ? decodeInput(aadRaw, document.getElementById("aad-format").value)
+        ? decodeInput(aadRaw, document.getElementById("aad-format").value, "AAD")
         : null;
-
-      if (iv.length < 1) throw new Error("IV must not be empty.");
 
       const ciphertext = await aesGcmEncrypt(keyBytes, iv, plaintext, aad);
 
@@ -237,17 +239,19 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const keyBytes = decodeInput(
         document.getElementById("key-input").value,
-        document.getElementById("key-format").value
+        document.getElementById("key-format").value,
+        "Key"
       );
 
       const rawData = decodeInput(
         document.getElementById("ciphertext-input").value,
-        document.getElementById("ciphertext-format").value
+        document.getElementById("ciphertext-format").value,
+        "Ciphertext"
       );
 
       const aadRaw = document.getElementById("aad-input").value.trim();
       const aad = aadRaw
-        ? decodeInput(aadRaw, document.getElementById("aad-format").value)
+        ? decodeInput(aadRaw, document.getElementById("aad-format").value, "AAD")
         : null;
 
       let iv, ciphertext;
@@ -264,7 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         iv = decodeInput(
           document.getElementById("iv-input").value,
-          document.getElementById("iv-format").value
+          document.getElementById("iv-format").value,
+          "IV"
         );
         ciphertext = rawData;
         if (ciphertext.length < 16) throw new Error("Ciphertext too short (minimum 16 bytes for GCM tag).");
@@ -349,12 +354,16 @@ function updateKeyByteHint() {
   hint.style.color = valid ? "#4ade80" : "#f87171";
 }
 
+// The nonce-prepended toggle only applies to Decrypt: when the nonce is
+// embedded in the ciphertext, the separate IV field isn't needed. Encrypt
+// always needs the IV field visible since #iv-section is shared by both tabs.
 function updateNonceMode() {
   const prepended = document.getElementById("nonce-prepended").checked;
+  const isDecryptTab = document.getElementById("tab-decrypt").classList.contains("active");
   const ivSection = document.getElementById("iv-section");
   const cipherHint = document.getElementById("cipher-label-hint");
 
-  ivSection.style.display = prepended ? "none" : "";
+  ivSection.style.display = isDecryptTab && prepended ? "none" : "";
   cipherHint.textContent = prepended
     ? " — nonce[12] + data + tag[16], all in selected format"
     : " — includes 16-byte GCM tag";
