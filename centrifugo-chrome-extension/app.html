@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Centrifugo Debug Client</title>
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header>
+    <h1>Centrifugo Debug Client</h1>
+    <span id="status" class="status status-disconnected">disconnected</span>
+    <button id="themeToggle" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <label>WebSocket URL
+          <input id="wsUrl" type="text" placeholder="wss://example.com/connection/websocket" />
+        </label>
+        <label>JWT connection token
+          <input id="token" type="password" placeholder="eyJhbGciOi..." />
+        </label>
+        <label class="checkbox-row">
+          <input id="rememberToken" type="checkbox" />
+          Remember token on this machine
+        </label>
+        <div class="button-row">
+          <button id="connectBtn" class="btn-primary">Connect</button>
+          <button id="disconnectBtn" disabled>Disconnect</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <label>Channel
+          <input id="channel" type="text" placeholder="news:index" />
+        </label>
+        <div class="button-row">
+          <button id="subscribeBtn" class="btn-primary" disabled>Subscribe</button>
+          <button id="unsubscribeBtn" disabled>Unsubscribe</button>
+        </div>
+        <label>Publish data (JSON)
+          <textarea id="publishData" rows="4" placeholder='{"text":"hello"}'></textarea>
+        </label>
+        <div class="button-row">
+          <button id="publishBtn" class="btn-primary" disabled>Publish</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="panel log-panel">
+      <div class="log-header">
+        <h2>Log</h2>
+        <button id="clearLogBtn">Clear</button>
+      </div>
+      <div id="log"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AES-GCM Crypto Tool</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>AES-GCM Crypto</h1>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="encrypt">Encrypt</button>
+      <button class="tab" data-tab="decrypt">Decrypt</button>
+    </div>
+
+    <!-- Key Section -->
+    <div class="field-group">
+      <label>Key <span class="hint">(128 / 192 / 256-bit)</span></label>
+      <div class="input-row">
+        <input type="text" id="key-input" class="mono" placeholder="Enter key…" spellcheck="false" />
+        <select id="key-format" class="fmt-select">
+          <option value="hex">Hex</option>
+          <option value="base64">Base64</option>
+          <option value="utf8">UTF-8</option>
+        </select>
+        <button class="btn-icon" id="gen-key" title="Generate random 256-bit key">⚙</button>
+      </div>
+      <div class="key-size-row" id="key-size-row">
+        <label><input type="radio" name="key-size" value="128" /> 128-bit</label>
+        <label><input type="radio" name="key-size" value="192" /> 192-bit</label>
+        <label><input type="radio" name="key-size" value="256" checked /> 256-bit</label>
+      </div>
+      <div id="key-byte-hint" class="hint" style="display:none;"></div>
+    </div>
+
+    <!-- IV Section -->
+    <div class="field-group" id="iv-section">
+      <label>IV / Nonce <span class="hint">(12 bytes recommended)</span></label>
+      <div class="input-row">
+        <input type="text" id="iv-input" class="mono" placeholder="Enter IV…" spellcheck="false" />
+        <select id="iv-format" class="fmt-select">
+          <option value="hex">Hex</option>
+          <option value="base64">Base64</option>
+          <option value="utf8">UTF-8</option>
+        </select>
+        <button class="btn-icon" id="gen-iv" title="Generate random 12-byte IV">⚙</button>
+      </div>
+    </div>
+
+    <!-- AAD Section -->
+    <div class="field-group">
+      <label>Additional Data <span class="hint">(AAD, optional)</span></label>
+      <div class="input-row">
+        <input type="text" id="aad-input" class="mono" placeholder="Additional authenticated data…" spellcheck="false" />
+        <select id="aad-format" class="fmt-select">
+          <option value="hex">Hex</option>
+          <option value="base64">Base64</option>
+          <option value="utf8" selected>UTF-8</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Encrypt Tab Content -->
+    <div id="tab-encrypt" class="tab-content active">
+      <div class="field-group">
+        <label>Plaintext</label>
+        <div class="input-row">
+          <textarea id="plaintext-input" class="mono" rows="3" placeholder="Data to encrypt…" spellcheck="false"></textarea>
+          <select id="plaintext-format" class="fmt-select align-top">
+            <option value="utf8" selected>UTF-8</option>
+            <option value="hex">Hex</option>
+            <option value="base64">Base64</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" id="encrypt-btn">Encrypt</button>
+    </div>
+
+    <!-- Decrypt Tab Content -->
+    <div id="tab-decrypt" class="tab-content">
+      <!-- Nonce mode toggle -->
+      <label class="toggle-row">
+        <input type="checkbox" id="nonce-prepended" checked />
+        <span>Nonce prepended to ciphertext</span>
+        <span class="hint" id="nonce-prepended-hint"> — Go / standard pattern</span>
+      </label>
+
+      <div class="field-group">
+        <label>Ciphertext <span id="cipher-label-hint" class="hint">(nonce[12] + data + tag[16], all Base64)</span></label>
+        <div class="input-row">
+          <textarea id="ciphertext-input" class="mono" rows="3" placeholder="Data to decrypt…" spellcheck="false"></textarea>
+          <select id="ciphertext-format" class="fmt-select align-top">
+            <option value="hex">Hex</option>
+            <option value="base64" selected>Base64</option>
+            <option value="hex_b64">Hex of B64</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Plaintext Output Format</label>
+        <select id="plaintext-out-format" class="fmt-select">
+          <option value="utf8" selected>UTF-8</option>
+          <option value="hex">Hex</option>
+          <option value="base64">Base64</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="decrypt-btn">Decrypt</button>
+    </div>
+
+    <!-- Output -->
+    <div class="field-group" id="output-section" style="display:none;">
+      <label id="output-label">Result</label>
+      <div class="output-row">
+        <textarea id="output" class="mono output-box" rows="4" readonly spellcheck="false"></textarea>
+        <button class="btn-icon copy-btn" id="copy-btn" title="Copy to clipboard">⎘</button>
+      </div>
+      <div id="output-format-label" class="hint"></div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-box" class="error-box" style="display:none;"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "AES-GCM Crypto Tool",
+  "version": "1.0.0",
+  "description": "Encrypt and decrypt data using AES-GCM. Supports Base16 (Hex) and Base64 formats.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AES-GCM Crypto Tool",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
