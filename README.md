@@ -9,6 +9,7 @@
 | [`aes-gcm-extension`](aes-gcm-extension/README.md) | เข้ารหัส/ถอดรหัสข้อมูลด้วย AES-GCM (Hex / Base64) |
 | [`password-generator-extension`](password-generator-extension/README.md) | สร้างรหัสผ่านที่ปลอดภัย กำหนดความยาว/ชนิดตัวอักษรได้ |
 | [`centrifugo-chrome-extension`](centrifugo-chrome-extension/README.md) | เชื่อมต่อ Centrifugo server ผ่าน WebSocket เพื่อ debug real-time traffic |
+| [`qr-image-decoder-extension`](qr-image-decoder-extension/README.md) | ถอดรหัส QR code / barcode จากรูปภาพที่ copy ไว้ใน clipboard |
 
 ## วิธีติดตั้ง (Load Unpacked) — ทำเหมือนกันทุกตัว
 

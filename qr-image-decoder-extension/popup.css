@@ -1,0 +1,166 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  background: #0f1117;
+  color: #e2e8f0;
+  width: 380px;
+  min-height: 200px;
+}
+
+.container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #7dd3fc;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hint {
+  font-weight: 400;
+  color: #4b5563;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mono {
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 11px;
+}
+
+textarea {
+  background: #1e2330;
+  border: 1px solid #2d3548;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 12px;
+  padding: 6px 8px;
+  outline: none;
+  resize: vertical;
+  min-height: 56px;
+  width: 100%;
+}
+
+textarea:focus {
+  border-color: #2563eb;
+}
+
+/* Paste zone */
+.paste-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  background: #1e2330;
+  border: 2px dashed #2d3548;
+  border-radius: 8px;
+  cursor: text;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  padding: 8px;
+}
+
+.paste-zone:focus {
+  border-color: #2563eb;
+  background: #1a2030;
+}
+
+.paste-placeholder {
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.kbd {
+  display: inline-block;
+  background: #2d3548;
+  border: 1px solid #3d4761;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.preview-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 4px;
+}
+
+/* Buttons */
+.btn-icon {
+  background: #1e2330;
+  border: 1px solid #2d3548;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 7px 10px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: #2d3548;
+  color: #e2e8f0;
+}
+
+/* Output */
+.output-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.output-box {
+  background: #111827;
+  border-color: #1f4d2a;
+  color: #4ade80;
+  word-break: break-all;
+  flex: 1;
+}
+
+.copy-btn {
+  font-size: 16px;
+  align-self: flex-start;
+}
+
+/* Error */
+.error-box {
+  background: #2d1515;
+  border: 1px solid #7f1d1d;
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 11px;
+  padding: 8px 10px;
+  word-break: break-word;
+}

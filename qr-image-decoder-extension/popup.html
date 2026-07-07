@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QR/Barcode Image Decoder</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>QR/Barcode Decoder</h1>
+
+    <div class="field-group">
+      <label>Image <span class="hint">(copy an image, then paste here)</span></label>
+      <div id="paste-zone" class="paste-zone" tabindex="0">
+        <div id="paste-placeholder" class="paste-placeholder">
+          คลิกที่นี่แล้วกด <span class="kbd">Ctrl</span>+<span class="kbd">V</span> เพื่อวางรูปภาพ
+        </div>
+        <img id="preview-img" class="preview-img" style="display:none;" />
+      </div>
+      <button class="btn-icon" id="paste-btn" title="Paste image from clipboard">⎘ Paste from Clipboard</button>
+    </div>
+
+    <!-- Output -->
+    <div class="field-group" id="output-section" style="display:none;">
+      <label id="output-label">Decoded Text</label>
+      <div class="output-row">
+        <textarea id="output" class="mono output-box" rows="4" readonly spellcheck="false"></textarea>
+        <button class="btn-icon copy-btn" id="copy-btn" title="Copy to clipboard">⎘</button>
+      </div>
+      <div id="output-format-label" class="hint"></div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-box" class="error-box" style="display:none;"></div>
+  </div>
+  <canvas id="work-canvas" style="display:none;"></canvas>
+  <script src="vendor/jsQR.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
