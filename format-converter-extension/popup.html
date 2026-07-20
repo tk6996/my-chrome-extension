@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>Format Converter</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="logo">&#8646;</div>
+      <div>
+        <h1>Format Converter</h1>
+        <p>JSON &middot; CSV &middot; XML &middot; YAML &middot; ENV</p>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <select id="fromFormat">
+        <option value="json">JSON</option>
+        <option value="csv">CSV</option>
+        <option value="xml">XML</option>
+        <option value="yaml">YAML</option>
+        <option value="env">ENV</option>
+      </select>
+
+      <button id="swapBtn" class="icon-btn" title="Swap">&#8644;</button>
+
+      <select id="toFormat">
+        <option value="json">JSON</option>
+        <option value="csv">CSV</option>
+        <option value="xml">XML</option>
+        <option value="yaml" selected>YAML</option>
+        <option value="env">ENV</option>
+      </select>
+
+      <button id="convertBtn">Convert</button>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <label for="input">
+          Input
+          <span class="label-actions">
+            <button id="prettyBtn" class="btn-ghost" title="Pretty-print the input in its current format">Pretty</button>
+            <button id="minifyBtn" class="btn-ghost" title="Minify the input in its current format">Minify</button>
+          </span>
+        </label>
+        <textarea id="input" spellcheck="false" placeholder="Paste input here..."></textarea>
+      </div>
+      <div class="panel">
+        <label for="output">
+          Output
+          <span class="label-actions">
+            <button id="prettyOutBtn" class="btn-ghost" title="Pretty-print the output in its current format">Pretty</button>
+            <button id="minifyOutBtn" class="btn-ghost" title="Minify the output in its current format">Minify</button>
+            <button id="copyBtn" class="btn-ghost" title="Copy to clipboard">Copy</button>
+          </span>
+        </label>
+        <textarea id="output" spellcheck="false" readonly placeholder="Result will appear here..."></textarea>
+      </div>
+    </div>
+
+    <div id="errorBox" class="error hidden"></div>
+  </div>
+
+  <script src="vendor/js-yaml.min.js"></script>
+  <script src="converter.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

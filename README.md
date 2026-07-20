@@ -10,6 +10,7 @@
 | [`password-generator-extension`](password-generator-extension/README.md) | สร้างรหัสผ่านที่ปลอดภัย กำหนดความยาว/ชนิดตัวอักษรได้ |
 | [`centrifugo-chrome-extension`](centrifugo-chrome-extension/README.md) | เชื่อมต่อ Centrifugo server ผ่าน WebSocket เพื่อ debug real-time traffic |
 | [`qr-image-decoder-extension`](qr-image-decoder-extension/README.md) | ถอดรหัส QR code / barcode จากรูปภาพที่ copy ไว้ใน clipboard |
+| [`format-converter-extension`](format-converter-extension/README.md) | แปลงข้อมูลไปมาระหว่าง JSON, CSV, XML, YAML, ENV |
 
 ## วิธีติดตั้ง (Load Unpacked) — ทำเหมือนกันทุกตัว
 
