@@ -15,7 +15,7 @@ Chrome extension สำหรับเชื่อมต่อ Centrifugo server
 1. คลิกไอคอน extension — ต่างจาก extension อื่น extension นี้ **ไม่มี popup** แต่จะเปิดหน้าแอป (`app.html`) เป็นแท็บใหม่แทน
 2. หากมีแท็บแอปเปิดอยู่แล้ว การคลิกไอคอนซ้ำจะสลับไปยังแท็บเดิมแทนการเปิดแท็บใหม่
 3. ในหน้าแอป ให้กรอก URL ของ Centrifugo server, subscribe channel ที่ต้องการ แล้วเริ่ม publish/inspect ข้อความได้เลย
-4. ต้องการสิทธิ์ `storage` (จำค่าที่ตั้งไว้) และ `tabs` (จัดการแท็บของแอป)
+4. ต้องการสิทธิ์ `storage` (จำค่าที่ตั้งไว้), `tabs` (จัดการแท็บของแอป) และ `host_permissions` สำหรับ `http(s)://*/*` (ใช้ยิง HTTP diagnostic probe เวลา WebSocket ปิดแบบ code 1006 เพื่อดู status/headers จริงของ server — เพราะ WebSocket API ของ browser ไม่ยอมให้ JS อ่านค่าพวกนี้ตอน handshake ล้มเหลว)
 
 ### Saved Connections (บันทึกหลาย Connection)
 

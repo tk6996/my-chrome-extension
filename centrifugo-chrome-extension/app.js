@@ -145,7 +145,7 @@ function deleteConnection() {
 }
 
 function logHeader(tag) {
-  const time = new Date().toLocaleTimeString();
+  const time = new Date().toLocaleTimeString(undefined, { hour12: false });
   const fragment = document.createDocumentFragment();
   const timeEl = document.createElement("span");
   timeEl.className = "log-time";
@@ -280,16 +280,84 @@ function connect() {
   };
 
   ws.onerror = () => {
-    log("error", "WebSocket error");
+    log("error", "WebSocket error (browsers never expose the real cause here — see the close event below for the code, and the diagnostic probe if it runs)");
     setStatus("error", "error");
   };
 
   ws.onclose = (event) => {
-    log("info", `WebSocket closed (code=${event.code} reason=${event.reason || "n/a"})`);
+    const clean = event.code === 1000;
+    log(
+      clean ? "info" : "error",
+      `WebSocket closed (code=${event.code} reason=${event.reason || "n/a"}) — ${closeCodeHint(event.code)}`
+    );
     setStatus("disconnected", "disconnected");
     setConnectedUi(false);
     ws = null;
+    if (event.code === 1006) {
+      diagnoseConnection(url);
+    }
   };
+}
+
+// 1006 carries no reason from the server by spec, so the only way to learn more
+// is to probe the same host over plain HTTP(S) and see what comes back.
+function closeCodeHint(code) {
+  const hints = {
+    1000: "normal closure",
+    1001: "endpoint going away (server shutting down, or tab navigating)",
+    1002: "protocol error",
+    1003: "unsupported data",
+    1005: "no status received",
+    1006: "abnormal closure — handshake never completed. Usually: server unreachable/wrong port, ws:// vs wss:// mismatch, or Centrifugo's allowed_origins rejecting this extension's origin. Running an HTTP probe now...",
+    1007: "invalid frame payload data",
+    1008: "policy violation",
+    1009: "message too big",
+    1011: "server internal error",
+    1015: "TLS handshake failure",
+  };
+  if (hints[code]) return hints[code];
+  if (code >= 3000 && code < 4000) {
+    return "Centrifugo application-level disconnect code — see https://centrifugal.dev/docs/transports/client_protocol#connection-related-disconnect-codes";
+  }
+  if (code >= 4000) return "custom application disconnect code (defined by your Centrifugo server config)";
+  return "unrecognized close code";
+}
+
+// Plain WebSocket API never exposes the handshake's HTTP status or headers on
+// failure (browser security restriction). This does a normal fetch to the
+// same host/path over http(s) instead, which — with this extension's
+// host_permissions — bypasses CORS and lets us read the real status/headers.
+async function diagnoseConnection(wsUrl) {
+  let httpUrl;
+  try {
+    httpUrl = new URL(wsUrl);
+    httpUrl.protocol = httpUrl.protocol === "wss:" ? "https:" : "http:";
+  } catch (err) {
+    log("error", `Diagnostic probe skipped: could not parse URL (${err.message})`);
+    return;
+  }
+
+  log("info", `Diagnostic probe: GET ${httpUrl.toString()}`);
+  try {
+    const res = await fetch(httpUrl.toString(), { method: "GET", cache: "no-store" });
+    const headerLines = [];
+    res.headers.forEach((value, key) => headerLines.push(`  ${key}: ${value}`));
+    log(
+      res.ok || res.status < 500 ? "info" : "error",
+      `Diagnostic probe result: HTTP ${res.status} ${res.statusText}` +
+        (headerLines.length ? `\nHeaders:\n${headerLines.join("\n")}` : "\n(no headers returned)")
+    );
+    log(
+      "info",
+      "Note: Centrifugo's WebSocket endpoint normally rejects a plain GET (e.g. 400 Bad Request) — that's expected and still proves the server is reachable. What matters is whether it responded at all, and whether an Access-Control-Allow-Origin or similar header hints at an origin check."
+    );
+  } catch (err) {
+    log(
+      "error",
+      `Diagnostic probe failed: ${err.message} — server is likely unreachable (wrong host/port, firewall, or it's not running). ` +
+        "If a plain HTTP request can't even connect, the WebSocket handshake can't either."
+    );
+  }
 }
 
 function handleReply(line) {
