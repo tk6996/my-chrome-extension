@@ -1,3 +1,39 @@
+:root {
+  --accent: #6366f1;
+  --accent-dark: #4f46e5;
+  --bg: #f4f5f9;
+  --surface: #ffffff;
+  --border: #e2e4ec;
+  --text: #1e2029;
+  --text-muted: #6b7080;
+  --mono-bg: #f9fafc;
+  --error-bg: #fdecea;
+  --error-border: #f5b9b3;
+  --error-text: #b3261e;
+  --output-bg: #f0fdf4;
+  --output-border: #bbf0cc;
+  --output-text: #15803d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #818cf8;
+    --accent-dark: #6366f1;
+    --bg: #16171d;
+    --surface: #1e2028;
+    --border: #2d2f3a;
+    --text: #e7e8ee;
+    --text-muted: #9498a8;
+    --mono-bg: #17181f;
+    --error-bg: #3a1e1e;
+    --error-border: #6b2c2c;
+    --error-text: #f28b82;
+    --output-bg: #111827;
+    --output-border: #1f4d2a;
+    --output-text: #4ade80;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,10 +41,10 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 13px;
-  background: #0f1117;
-  color: #e2e8f0;
+  background: var(--bg);
+  color: var(--text);
   width: 380px;
   min-height: 200px;
 }
@@ -23,7 +59,7 @@ body {
 h1 {
   font-size: 16px;
   font-weight: 600;
-  color: #7dd3fc;
+  color: var(--accent);
   letter-spacing: 0.5px;
   text-align: center;
 }
@@ -37,28 +73,28 @@ h1 {
 label {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .hint {
   font-weight: 400;
-  color: #4b5563;
+  color: var(--text-muted);
   text-transform: none;
   letter-spacing: 0;
 }
 
 .mono {
-  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-family: Consolas, Menlo, "JetBrains Mono", monospace;
   font-size: 11px;
 }
 
 textarea {
-  background: #1e2330;
-  border: 1px solid #2d3548;
+  background: var(--mono-bg);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  color: #e2e8f0;
+  color: var(--text);
   font-size: 12px;
   padding: 6px 8px;
   outline: none;
@@ -68,7 +104,7 @@ textarea {
 }
 
 textarea:focus {
-  border-color: #2563eb;
+  border-color: var(--accent);
 }
 
 /* Paste zone */
@@ -77,8 +113,8 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   min-height: 140px;
-  background: #1e2330;
-  border: 2px dashed #2d3548;
+  background: var(--mono-bg);
+  border: 2px dashed var(--border);
   border-radius: 8px;
   cursor: text;
   outline: none;
@@ -87,12 +123,12 @@ textarea:focus {
 }
 
 .paste-zone:focus {
-  border-color: #2563eb;
-  background: #1a2030;
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 .paste-placeholder {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
   text-align: center;
   line-height: 1.6;
@@ -100,13 +136,13 @@ textarea:focus {
 
 .kbd {
   display: inline-block;
-  background: #2d3548;
-  border: 1px solid #3d4761;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1px 6px;
-  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-family: Consolas, Menlo, "JetBrains Mono", monospace;
   font-size: 11px;
-  color: #cbd5e1;
+  color: var(--text);
 }
 
 .preview-img {
@@ -117,10 +153,10 @@ textarea:focus {
 
 /* Buttons */
 .btn-icon {
-  background: #1e2330;
-  border: 1px solid #2d3548;
+  background: var(--mono-bg);
+  border: 1px solid var(--border);
   border-radius: 6px;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 12px;
   padding: 7px 10px;
   cursor: pointer;
@@ -130,8 +166,9 @@ textarea:focus {
 }
 
 .btn-icon:hover {
-  background: #2d3548;
-  color: #e2e8f0;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 /* Output */
@@ -142,9 +179,9 @@ textarea:focus {
 }
 
 .output-box {
-  background: #111827;
-  border-color: #1f4d2a;
-  color: #4ade80;
+  background: var(--output-bg);
+  border-color: var(--output-border);
+  color: var(--output-text);
   word-break: break-all;
   flex: 1;
 }
@@ -156,10 +193,10 @@ textarea:focus {
 
 /* Error */
 .error-box {
-  background: #2d1515;
-  border: 1px solid #7f1d1d;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   border-radius: 6px;
-  color: #fca5a5;
+  color: var(--error-text);
   font-size: 11px;
   padding: 8px 10px;
   word-break: break-word;
