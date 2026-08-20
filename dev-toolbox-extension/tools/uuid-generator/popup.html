@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UUID Generator</title>
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <h1>🆔 UUID Generator</h1>
+
+  <div class="section">
+    <label>Version
+      <select id="versionSelect">
+        <option value="4" selected>v4 (random)</option>
+        <option value="1">v1 (time-based)</option>
+        <option value="7">v7 (time-ordered)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="section">
+    <label>Generated UUID</label>
+    <div class="result-box">
+      <span id="uuidOutput">Click Generate</span>
+      <button class="icon-btn" id="copyBtn" title="Copy">📋</button>
+      <button class="icon-btn" id="refreshBtn" title="Regenerate">🔄</button>
+    </div>
+  </div>
+
+  <button id="generateBtn">Generate UUID</button>
+
+  <div id="toast">✅ Copied to clipboard!</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dev Toolbox</title>
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="hub.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">&#129513;</div>
+        <div class="brand-title">Dev Toolbox</div>
+      </div>
+
+      <div class="nav-label">Tools</div>
+      <nav class="nav">
+        <button class="nav-item" data-src="tools/aes-gcm/popup.html" data-title="AES-GCM Crypto Tool">
+          <span class="nav-icon">&#128274;</span><span class="nav-label-text">AES-GCM Crypto Tool</span>
+        </button>
+        <button class="nav-item" data-src="tools/centrifugo/app.html" data-title="Centrifugo Debug Client">
+          <span class="nav-icon">&#128225;</span><span class="nav-label-text">Centrifugo Debug Client</span>
+        </button>
+        <button class="nav-item" data-src="tools/format-converter/popup.html" data-title="Format Converter">
+          <span class="nav-icon">&#8646;</span><span class="nav-label-text">Format Converter</span>
+        </button>
+        <button class="nav-item" data-src="tools/jwt-debugger/popup.html" data-title="JWT Debugger">
+          <span class="nav-icon">&#128273;</span><span class="nav-label-text">JWT Debugger</span>
+        </button>
+        <button class="nav-item" data-src="tools/password-generator/popup.html" data-title="Password Generator">
+          <span class="nav-icon">&#128272;</span><span class="nav-label-text">Password Generator</span>
+        </button>
+        <button class="nav-item" data-src="tools/qr-image-decoder/popup.html" data-title="QR/Barcode Decoder">
+          <span class="nav-icon">&#128247;</span><span class="nav-label-text">QR/Barcode Decoder</span>
+        </button>
+        <button class="nav-item" data-src="tools/secret-masker/popup.html" data-title="Secret Masker">
+          <span class="nav-icon">&#128065;</span><span class="nav-label-text">Secret Masker</span>
+        </button>
+        <button class="nav-item" data-src="tools/uuid-generator/popup.html" data-title="UUID Generator">
+          <span class="nav-icon">&#127991;</span><span class="nav-label-text">UUID Generator</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">Dev Toolbox &middot; runs locally</div>
+    </aside>
+
+    <main class="content">
+      <header class="content-bar">
+        <span class="content-icon" id="activeIcon"></span>
+        <span class="content-title" id="activeTitle"></span>
+        <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+      </header>
+      <div class="frame-stack" id="frameStack">
+        <iframe class="tool-frame" data-tool="tools/aes-gcm/popup.html" title="AES-GCM Crypto Tool" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/centrifugo/app.html" title="Centrifugo Debug Client" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/format-converter/popup.html" title="Format Converter" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/jwt-debugger/popup.html" title="JWT Debugger" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/password-generator/popup.html" title="Password Generator" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/qr-image-decoder/popup.html" title="QR/Barcode Decoder" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/secret-masker/popup.html" title="Secret Masker" allow="clipboard-read; clipboard-write"></iframe>
+        <iframe class="tool-frame" data-tool="tools/uuid-generator/popup.html" title="UUID Generator" allow="clipboard-read; clipboard-write"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <script src="hub.js"></script>
+</body>
+</html>

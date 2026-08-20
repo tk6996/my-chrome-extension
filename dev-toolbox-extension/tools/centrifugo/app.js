@@ -1,0 +1,489 @@
+// Minimal Centrifugo bidirectional JSON protocol client.
+// Protocol reference: https://centrifugal.dev/docs/transports/client_protocol
+
+const els = {
+  status: document.getElementById("status"),
+  wsUrl: document.getElementById("wsUrl"),
+  protocol: document.getElementById("protocolVersion"),
+  token: document.getElementById("token"),
+  rememberToken: document.getElementById("rememberToken"),
+  connectBtn: document.getElementById("connectBtn"),
+  disconnectBtn: document.getElementById("disconnectBtn"),
+  channel: document.getElementById("channel"),
+  subscribeBtn: document.getElementById("subscribeBtn"),
+  unsubscribeBtn: document.getElementById("unsubscribeBtn"),
+  publishData: document.getElementById("publishData"),
+  publishBtn: document.getElementById("publishBtn"),
+  log: document.getElementById("log"),
+  clearLogBtn: document.getElementById("clearLogBtn"),
+  connectionSelect: document.getElementById("connectionSelect"),
+  connectionName: document.getElementById("connectionName"),
+  saveConnectionBtn: document.getElementById("saveConnectionBtn"),
+  deleteConnectionBtn: document.getElementById("deleteConnectionBtn"),
+};
+
+// Theme (light/dark) is controlled from the hub's single toggle now — see
+// theme-init.js, which sets data-theme on load and keeps it live-synced via
+// the storage event while this iframe stays mounted in the background.
+
+let ws = null;
+let cmdId = 0;
+const pendingCommands = new Map(); // id -> label, for logging replies against their request
+let subscribedChannel = null;
+
+let connections = []; // [{ id, name, wsUrl, channel, rememberToken, token }]
+let selectedConnectionId = null;
+
+function persistConnections() {
+  chrome.storage.local.set({ connections });
+}
+
+function renderConnectionOptions() {
+  els.connectionSelect.innerHTML = "";
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "-- New Connection --";
+  els.connectionSelect.appendChild(placeholder);
+  for (const conn of connections) {
+    const opt = document.createElement("option");
+    opt.value = conn.id;
+    opt.textContent = conn.name;
+    els.connectionSelect.appendChild(opt);
+  }
+  els.connectionSelect.value = selectedConnectionId || "";
+}
+
+function loadConnectionIntoForm(conn) {
+  els.connectionName.value = conn.name;
+  els.wsUrl.value = conn.wsUrl;
+  els.protocol.value = conn.protocol || "v2";
+  els.channel.value = conn.channel || "";
+  els.rememberToken.checked = !!conn.rememberToken;
+  els.token.value = conn.rememberToken ? conn.token || "" : "";
+}
+
+function clearConnectionForm() {
+  els.connectionName.value = "";
+  els.wsUrl.value = "";
+  els.protocol.value = "v2";
+  els.channel.value = "";
+  els.rememberToken.checked = false;
+  els.token.value = "";
+}
+
+function selectConnection() {
+  const id = els.connectionSelect.value;
+  selectedConnectionId = id || null;
+  els.deleteConnectionBtn.disabled = !id;
+  if (!id) {
+    clearConnectionForm();
+    return;
+  }
+  const conn = connections.find((c) => c.id === id);
+  if (!conn) return;
+  loadConnectionIntoForm(conn);
+  log("info", `Loaded connection "${conn.name}"`);
+}
+
+function saveConnection() {
+  const name = els.connectionName.value.trim();
+  if (!name) {
+    log("error", "Connection name is required to save");
+    return;
+  }
+  const wsUrl = els.wsUrl.value.trim();
+  if (!wsUrl) {
+    log("error", "WebSocket URL is required to save a connection");
+    return;
+  }
+
+  const data = {
+    name,
+    wsUrl,
+    protocol: els.protocol.value,
+    channel: els.channel.value.trim(),
+    rememberToken: els.rememberToken.checked,
+    token: els.rememberToken.checked ? els.token.value.trim() : "",
+  };
+
+  const existing =
+    connections.find((c) => c.id === selectedConnectionId) ||
+    connections.find((c) => c.name.toLowerCase() === name.toLowerCase());
+
+  if (existing) {
+    Object.assign(existing, data);
+    selectedConnectionId = existing.id;
+    log("info", `Updated saved connection "${name}"`);
+  } else {
+    const conn = { id: crypto.randomUUID(), ...data };
+    connections.push(conn);
+    selectedConnectionId = conn.id;
+    log("info", `Saved connection "${name}"`);
+  }
+
+  persistConnections();
+  renderConnectionOptions();
+  els.deleteConnectionBtn.disabled = false;
+}
+
+function deleteConnection() {
+  if (!selectedConnectionId) return;
+  const conn = connections.find((c) => c.id === selectedConnectionId);
+  connections = connections.filter((c) => c.id !== selectedConnectionId);
+  selectedConnectionId = null;
+  persistConnections();
+  renderConnectionOptions();
+  els.connectionName.value = "";
+  els.deleteConnectionBtn.disabled = true;
+  if (conn) log("info", `Deleted saved connection "${conn.name}"`);
+}
+
+function logHeader(tag) {
+  const time = new Date().toLocaleTimeString(undefined, { hour12: false });
+  const fragment = document.createDocumentFragment();
+  const timeEl = document.createElement("span");
+  timeEl.className = "log-time";
+  timeEl.textContent = time;
+  const tagEl = document.createElement("span");
+  tagEl.className = `log-tag log-tag-${tag}`;
+  tagEl.textContent = `[${tag}]`;
+  fragment.appendChild(timeEl);
+  fragment.appendChild(tagEl);
+  return fragment;
+}
+
+function log(tag, text) {
+  const entry = document.createElement("div");
+  entry.className = "log-entry";
+  entry.appendChild(logHeader(tag));
+  entry.appendChild(document.createTextNode(text));
+  els.log.appendChild(entry);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+// Logs a JS value as an indented, syntax-highlighted JSON block.
+function logJson(tag, value) {
+  const entry = document.createElement("div");
+  entry.className = "log-entry";
+  entry.appendChild(logHeader(tag));
+  const pre = document.createElement("pre");
+  pre.className = "log-json";
+  pre.innerHTML = syntaxHighlightJson(value);
+  entry.appendChild(pre);
+  els.log.appendChild(entry);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function syntaxHighlightJson(value) {
+  const json = escapeHtml(JSON.stringify(value, null, 2));
+  return json.replace(
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(\.\d+)?([eE][+-]?\d+)?)/g,
+    (match) => {
+      let cls = "json-number";
+      if (/^"/.test(match)) {
+        cls = /:$/.test(match) ? "json-key" : "json-string";
+      } else if (/true|false/.test(match)) {
+        cls = "json-boolean";
+      } else if (/null/.test(match)) {
+        cls = "json-null";
+      }
+      return `<span class="${cls}">${match}</span>`;
+    }
+  );
+}
+
+function setStatus(state, label) {
+  els.status.className = `status status-${state}`;
+  els.status.textContent = label;
+}
+
+function setConnectedUi(connected) {
+  els.connectBtn.disabled = connected;
+  els.disconnectBtn.disabled = !connected;
+  els.subscribeBtn.disabled = !connected;
+  els.wsUrl.disabled = connected;
+  els.protocol.disabled = connected;
+  els.token.disabled = connected;
+  if (!connected) {
+    els.unsubscribeBtn.disabled = true;
+    els.publishBtn.disabled = true;
+    subscribedChannel = null;
+  }
+}
+
+// v1 protocol (Centrifugo v1.x/v2.x) identifies commands by a numeric method
+// code instead of nesting params under a named key — see
+// https://github.com/centrifugal/centrifuge-js/blob/2.8.5/src/centrifuge.js
+const LEGACY_METHOD_CODE = { connect: 0, subscribe: 1, unsubscribe: 2, publish: 3 };
+
+function isLegacyProtocol() {
+  return els.protocol.value === "v1";
+}
+
+function send(method, params) {
+  const id = ++cmdId;
+  const command = isLegacyProtocol()
+    ? { id, method: LEGACY_METHOD_CODE[method], params }
+    : { id, [method]: params };
+  pendingCommands.set(id, method);
+  ws.send(JSON.stringify(command));
+  logJson("sent", command);
+  return id;
+}
+
+function connect() {
+  const url = els.wsUrl.value.trim();
+  const token = els.token.value.trim();
+  if (!url) {
+    log("error", "WebSocket URL is required");
+    return;
+  }
+
+  chrome.storage.local.set({
+    wsUrl: url,
+    protocol: els.protocol.value,
+    channel: els.channel.value.trim(),
+    rememberToken: els.rememberToken.checked,
+    token: els.rememberToken.checked ? token : "",
+  });
+
+  setStatus("connecting", "connecting");
+  cmdId = 0;
+  pendingCommands.clear();
+
+  try {
+    ws = new WebSocket(url);
+  } catch (err) {
+    log("error", `Failed to open WebSocket: ${err.message}`);
+    setStatus("error", "error");
+    return;
+  }
+
+  ws.onopen = () => {
+    log("info", "WebSocket open, sending connect command");
+    send("connect", token ? { token } : {});
+  };
+
+  ws.onmessage = (event) => {
+    const raw = event.data;
+    if (raw === "" || raw === "{}") {
+      // Server-to-client ping; reply with empty pong frame.
+      ws.send("{}");
+      log("info", "ping received, pong sent");
+      return;
+    }
+
+    // Frames may contain multiple newline-separated JSON replies.
+    for (const line of raw.split("\n")) {
+      if (!line) continue;
+      handleReply(line);
+    }
+  };
+
+  ws.onerror = () => {
+    log("error", "WebSocket error (browsers never expose the real cause here — see the close event below for the code, and the diagnostic probe if it runs)");
+    setStatus("error", "error");
+  };
+
+  ws.onclose = (event) => {
+    const clean = event.code === 1000;
+    log(
+      clean ? "info" : "error",
+      `WebSocket closed (code=${event.code} reason=${event.reason || "n/a"}) — ${closeCodeHint(event.code)}`
+    );
+    setStatus("disconnected", "disconnected");
+    setConnectedUi(false);
+    ws = null;
+    if (event.code === 1006) {
+      diagnoseConnection(url);
+    }
+  };
+}
+
+// 1006 carries no reason from the server by spec, so the only way to learn more
+// is to probe the same host over plain HTTP(S) and see what comes back.
+function closeCodeHint(code) {
+  const hints = {
+    1000: "normal closure",
+    1001: "endpoint going away (server shutting down, or tab navigating)",
+    1002: "protocol error",
+    1003: "unsupported data",
+    1005: "no status received",
+    1006: "abnormal closure — handshake never completed. Usually: server unreachable/wrong port, ws:// vs wss:// mismatch, or Centrifugo's allowed_origins rejecting this extension's origin. Running an HTTP probe now...",
+    1007: "invalid frame payload data",
+    1008: "policy violation",
+    1009: "message too big",
+    1011: "server internal error",
+    1015: "TLS handshake failure",
+  };
+  if (hints[code]) return hints[code];
+  if (code >= 3000 && code < 4000) {
+    return "Centrifugo application-level disconnect code — see https://centrifugal.dev/docs/transports/client_protocol#connection-related-disconnect-codes";
+  }
+  if (code >= 4000) return "custom application disconnect code (defined by your Centrifugo server config)";
+  return "unrecognized close code";
+}
+
+// Plain WebSocket API never exposes the handshake's HTTP status or headers on
+// failure (browser security restriction). This does a normal fetch to the
+// same host/path over http(s) instead, which — with this extension's
+// host_permissions — bypasses CORS and lets us read the real status/headers.
+async function diagnoseConnection(wsUrl) {
+  let httpUrl;
+  try {
+    httpUrl = new URL(wsUrl);
+    httpUrl.protocol = httpUrl.protocol === "wss:" ? "https:" : "http:";
+  } catch (err) {
+    log("error", `Diagnostic probe skipped: could not parse URL (${err.message})`);
+    return;
+  }
+
+  log("info", `Diagnostic probe: GET ${httpUrl.toString()}`);
+  try {
+    const res = await fetch(httpUrl.toString(), { method: "GET", cache: "no-store" });
+    const headerLines = [];
+    res.headers.forEach((value, key) => headerLines.push(`  ${key}: ${value}`));
+    log(
+      res.ok || res.status < 500 ? "info" : "error",
+      `Diagnostic probe result: HTTP ${res.status} ${res.statusText}` +
+        (headerLines.length ? `\nHeaders:\n${headerLines.join("\n")}` : "\n(no headers returned)")
+    );
+    log(
+      "info",
+      "Note: Centrifugo's WebSocket endpoint normally rejects a plain GET (e.g. 400 Bad Request) — that's expected and still proves the server is reachable. What matters is whether it responded at all, and whether an Access-Control-Allow-Origin or similar header hints at an origin check."
+    );
+  } catch (err) {
+    log(
+      "error",
+      `Diagnostic probe failed: ${err.message} — server is likely unreachable (wrong host/port, firewall, or it's not running). ` +
+        "If a plain HTTP request can't even connect, the WebSocket handshake can't either."
+    );
+  }
+}
+
+function handleReply(line) {
+  let reply;
+  try {
+    reply = JSON.parse(line);
+  } catch (err) {
+    log("recv", line);
+    log("error", `Failed to parse reply: ${err.message}`);
+    return;
+  }
+  logJson("recv", reply);
+
+  if (reply.error) {
+    log("error", `Server error: ${JSON.stringify(reply.error)}`);
+    return;
+  }
+
+  if (reply.id) {
+    const method = pendingCommands.get(reply.id);
+    pendingCommands.delete(reply.id);
+    if (method === "connect") {
+      setStatus("connected", "connected");
+      setConnectedUi(true);
+      log("info", "Connected to Centrifugo");
+    } else if (method === "subscribe") {
+      subscribedChannel = els.channel.value.trim();
+      els.unsubscribeBtn.disabled = false;
+      els.publishBtn.disabled = false;
+      log("info", `Subscribed to "${subscribedChannel}"`);
+    } else if (method === "unsubscribe") {
+      log("info", `Unsubscribed from "${subscribedChannel}"`);
+      subscribedChannel = null;
+      els.unsubscribeBtn.disabled = true;
+      els.publishBtn.disabled = true;
+    }
+    return;
+  }
+
+  // Server-initiated push (new publication, join/leave, etc.), id is 0/absent.
+  if (isLegacyProtocol()) {
+    // v1 push envelope: {"result":{"channel":...,"type":<0=pub,1=join,2=leave>,"data":...}}
+    const { channel, type } = reply.result || {};
+    if (!channel) return;
+    if (!type) {
+      log("info", `Publication on "${channel}"`);
+    } else if (type === 1) {
+      log("info", `Join on "${channel}"`);
+    } else if (type === 2) {
+      log("info", `Leave on "${channel}"`);
+    }
+  } else if (reply.push) {
+    const { channel, pub, join, leave } = reply.push;
+    if (pub) {
+      log("info", `Publication on "${channel}"`);
+    } else if (join) {
+      log("info", `Join on "${channel}"`);
+    } else if (leave) {
+      log("info", `Leave on "${channel}"`);
+    }
+  }
+}
+
+function disconnect() {
+  if (ws) {
+    ws.close(1000, "client disconnect");
+  }
+}
+
+function subscribe() {
+  const channel = els.channel.value.trim();
+  if (!channel) {
+    log("error", "Channel is required");
+    return;
+  }
+  send("subscribe", { channel });
+}
+
+function unsubscribe() {
+  if (!subscribedChannel) return;
+  send("unsubscribe", { channel: subscribedChannel });
+}
+
+function publish() {
+  if (!subscribedChannel) {
+    log("error", "Subscribe to a channel before publishing");
+    return;
+  }
+  const raw = els.publishData.value.trim() || "{}";
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    log("error", `Publish data must be valid JSON: ${err.message}`);
+    return;
+  }
+  send("publish", { channel: subscribedChannel, data });
+}
+
+els.connectBtn.addEventListener("click", connect);
+els.disconnectBtn.addEventListener("click", disconnect);
+els.subscribeBtn.addEventListener("click", subscribe);
+els.unsubscribeBtn.addEventListener("click", unsubscribe);
+els.publishBtn.addEventListener("click", publish);
+els.clearLogBtn.addEventListener("click", () => {
+  els.log.innerHTML = "";
+});
+els.connectionSelect.addEventListener("change", selectConnection);
+els.saveConnectionBtn.addEventListener("click", saveConnection);
+els.deleteConnectionBtn.addEventListener("click", deleteConnection);
+
+chrome.storage.local.get(["wsUrl", "protocol", "channel", "rememberToken", "token", "connections"], (stored) => {
+  if (stored.wsUrl) els.wsUrl.value = stored.wsUrl;
+  if (stored.protocol) els.protocol.value = stored.protocol;
+  if (stored.channel) els.channel.value = stored.channel;
+  if (stored.rememberToken) {
+    els.rememberToken.checked = true;
+    if (stored.token) els.token.value = stored.token;
+  }
+  connections = stored.connections || [];
+  renderConnectionOptions();
+});

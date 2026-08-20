@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Generator</title>
+  <script src="theme-init.js"></script>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+  <h1>🔐 Password Generator</h1>
+
+  <!-- Length -->
+  <div class="section">
+    <label>
+      Password Length
+      <input type="number" id="lengthInput" min="4" max="128" value="16" />
+    </label>
+  </div>
+
+  <!-- Character types -->
+  <div class="section">
+    <div class="checkbox-list">
+      <label class="checkbox-item">
+        <input type="checkbox" id="chkLower" checked />
+        <span>Lowercase</span>
+        <span class="tag">a–z</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="chkUpper" checked />
+        <span>Uppercase</span>
+        <span class="tag">A–Z</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="chkNumber" checked />
+        <span>Numbers</span>
+        <span class="tag">0–9</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="chkSymbol" />
+        <span>Symbols</span>
+        <span class="tag">!@#$…</span>
+      </label>
+    </div>
+  </div>
+
+  <p class="warn" id="warnMsg">⚠️ Please select at least one character type.</p>
+
+  <!-- Output -->
+  <div class="section">
+    <label>Generated Password</label>
+    <div class="result-box">
+      <span id="passwordOutput">Click Generate</span>
+      <button class="icon-btn" id="copyBtn" title="Copy">📋</button>
+      <button class="icon-btn" id="refreshBtn" title="Regenerate">🔄</button>
+    </div>
+    <div class="strength-bar-wrap">
+      <div class="strength-bar" id="strengthBar"></div>
+    </div>
+  </div>
+
+  <button id="generateBtn">Generate Password</button>
+
+  <div id="toast">✅ Copied to clipboard!</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
