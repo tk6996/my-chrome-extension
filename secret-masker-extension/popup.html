@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secret Masker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="logo">&#128065;</div>
+      <div>
+        <h1>Secret Masker</h1>
+        <p>Mask sensitive values in JSON &middot; YAML</p>
+      </div>
+    </header>
+
+    <div class="panels">
+      <div class="panel">
+        <label for="input">
+          Input
+          <span class="label-actions">
+            <span id="formatBadge" class="badge hidden"></span>
+          </span>
+        </label>
+        <textarea id="input" spellcheck="false" placeholder="Paste JSON or YAML here..."></textarea>
+      </div>
+      <div class="panel">
+        <label for="output">
+          Masked output
+          <span class="label-actions">
+            <button id="copyBtn" class="btn-ghost" title="Copy to clipboard">Copy</button>
+          </span>
+        </label>
+        <textarea id="output" spellcheck="false" readonly placeholder="Masked result will appear here..."></textarea>
+      </div>
+    </div>
+
+    <div id="errorBox" class="error hidden"></div>
+  </div>
+
+  <script src="vendor/js-yaml.min.js"></script>
+  <script src="masker.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

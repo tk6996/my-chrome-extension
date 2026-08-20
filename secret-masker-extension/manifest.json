@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Secret Masker",
+  "version": "1.0.0",
+  "description": "Mask sensitive values (password, token, secret, key, ...) in JSON/YAML before sharing.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Secret Masker",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
