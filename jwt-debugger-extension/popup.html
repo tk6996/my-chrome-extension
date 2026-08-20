@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JWT Debugger</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="logo">&#128273;</div>
+      <div>
+        <h1>JWT Debugger</h1>
+        <p>Decode &middot; Edit &middot; Verify JSON Web Tokens</p>
+      </div>
+    </header>
+
+    <div class="field-group">
+      <label for="jwtInput">JWT</label>
+      <textarea id="jwtInput" class="mono" rows="3" spellcheck="false" placeholder="Paste a JWT (eyJhbGciOi...) here..."></textarea>
+    </div>
+
+    <div id="claimsBar" class="claims-bar hidden">
+      <span id="algBadge" class="badge"></span>
+      <span id="expBadge" class="badge"></span>
+      <span id="extraClaimsBar" class="claims-bar-extra"></span>
+    </div>
+
+    <div class="panels">
+      <div class="panel">
+        <label for="headerInput">Header</label>
+        <textarea id="headerInput" class="mono" spellcheck="false" placeholder="{}"></textarea>
+      </div>
+      <div class="panel">
+        <label for="payloadInput">Payload</label>
+        <textarea id="payloadInput" class="mono" spellcheck="false" placeholder="{}"></textarea>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Signature <span id="sigStatus" class="badge"></span></label>
+
+      <div id="hmacKeySection" class="key-section hidden">
+        <input id="secretInput" type="text" class="mono" placeholder="Secret used to sign this token..." spellcheck="false" />
+        <label class="checkbox-row">
+          <input type="checkbox" id="secretIsBase64" /> Secret is base64 encoded
+        </label>
+        <div class="btn-row">
+          <button id="verifyHmacBtn" class="btn-primary">Verify</button>
+          <button id="signHmacBtn" class="btn-ghost">Sign with this secret</button>
+        </div>
+      </div>
+
+      <div id="asymKeySection" class="key-section hidden">
+        <textarea id="publicKeyInput" class="mono" rows="4" placeholder="-----BEGIN PUBLIC KEY-----..." spellcheck="false"></textarea>
+        <div class="btn-row">
+          <button id="verifyAsymBtn" class="btn-primary">Verify</button>
+        </div>
+      </div>
+
+      <div id="noneKeySection" class="key-section hidden">
+        <p class="hint">alg is "none" — this token is unsigned</p>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="jwtOutput">
+        Encoded JWT
+        <span class="label-actions">
+          <button id="copyBtn" class="btn-ghost" title="Copy to clipboard">Copy</button>
+        </span>
+      </label>
+      <textarea id="jwtOutput" class="mono" rows="3" readonly spellcheck="false"></textarea>
+    </div>
+
+    <div id="errorBox" class="error hidden"></div>
+
+    <div id="payloadTooltip" class="hover-tooltip hidden"></div>
+
+    <div class="warning-box">
+      &#9888; Security tokens should be kept secret. This tool runs entirely in your browser (client-side only) — never paste real production secrets/private keys into this or any other debugging tool.
+    </div>
+  </div>
+
+  <script src="jwt.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

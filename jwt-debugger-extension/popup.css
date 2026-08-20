@@ -1,0 +1,328 @@
+:root {
+  --accent: #6366f1;
+  --accent-dark: #4f46e5;
+  --bg: #f4f5f9;
+  --surface: #ffffff;
+  --border: #e2e4ec;
+  --text: #1e2029;
+  --text-muted: #6b7080;
+  --mono-bg: #f9fafc;
+  --error-bg: #fdecea;
+  --error-border: #f5b9b3;
+  --error-text: #b3261e;
+  --success-bg: #eafaf0;
+  --success-border: #bdeecb;
+  --success-text: #15803d;
+  --warn-bg: #fff8e6;
+  --warn-border: #f5dfa3;
+  --warn-text: #92650a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #818cf8;
+    --accent-dark: #6366f1;
+    --bg: #16171d;
+    --surface: #1e2028;
+    --border: #2d2f3a;
+    --text: #e7e8ee;
+    --text-muted: #9498a8;
+    --mono-bg: #17181f;
+    --error-bg: #3a1e1e;
+    --error-border: #6b2c2c;
+    --error-text: #f28b82;
+    --success-bg: #16281d;
+    --success-border: #2c5c3a;
+    --success-text: #4ade80;
+    --warn-bg: #332a12;
+    --warn-border: #6b551f;
+    --warn-text: #f0c95c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 680px;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.app {
+  padding: 16px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff;
+  font-size: 16px;
+  box-shadow: 0 3px 8px rgba(79, 70, 229, 0.35);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.app-header p {
+  margin: 1px 0 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.field-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.hint {
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.label-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.panels {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.claims-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.claims-bar-extra {
+  display: flex;
+  gap: 8px;
+}
+
+.badge[title] {
+  cursor: help;
+}
+
+.hover-tooltip {
+  position: fixed;
+  z-index: 50;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 2px 8px;
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 10px;
+  text-transform: none;
+}
+
+.badge-success {
+  color: var(--success-text);
+  background: var(--success-bg);
+}
+
+.badge-error {
+  color: var(--error-text);
+  background: var(--error-bg);
+}
+
+.badge-muted {
+  color: var(--text-muted);
+  background: var(--mono-bg);
+}
+
+textarea,
+input[type="text"] {
+  width: 100%;
+  resize: vertical;
+  font-family: Consolas, Menlo, "JetBrains Mono", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px;
+  color: var(--text);
+  background: var(--mono-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#jwtInput,
+#jwtOutput {
+  height: auto;
+}
+
+.panel textarea {
+  height: 220px;
+}
+
+textarea:focus,
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+textarea::placeholder,
+input::placeholder {
+  color: var(--text-muted);
+}
+
+.key-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--accent);
+}
+
+.error {
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+  border-left: 3px solid var(--error-text);
+  border-radius: 6px;
+  font-family: Consolas, Menlo, "JetBrains Mono", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.warning-box {
+  padding: 10px 12px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.hidden {
+  display: none;
+}
