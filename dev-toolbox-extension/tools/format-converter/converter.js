@@ -35,6 +35,27 @@
     return jsyaml.dump(value, { lineWidth: -1 });
   }
 
+  // For environment/config values, not complete Kubernetes manifests.
+  function stringifyConfigScalars(value) {
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (Array.isArray(value)) return value.map(stringifyConfigScalars);
+    if (value !== null && typeof value === 'object' && !(value instanceof Date)) {
+      return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+        [key, stringifyConfigScalars(item)]
+      ));
+    }
+    return value;
+  }
+
+  function serializeRancherYAML(value, opts) {
+    return jsyaml.dump(stringifyConfigScalars(value), {
+      lineWidth: -1,
+      forceQuotes: true,
+      quotingType: "'",
+      flowLevel: opts && opts.minify ? 0 : -1,
+    }).trimEnd();
+  }
+
   // ---------- CSV ----------
 
   function parseCSVRows(text) {
@@ -270,7 +291,7 @@
     return s;
   }
 
-  function parseENV(text) {
+  function parseENV(text, preserveStrings) {
     const result = {};
     text.split(/\r?\n/).forEach((line) => {
       const trimmed = line.trim();
@@ -280,7 +301,8 @@
       if (eq === -1) return;
       const key = withoutExport.slice(0, eq).trim();
       const rawValue = withoutExport.slice(eq + 1);
-      result[key] = coerceScalar(stripQuotes(rawValue));
+      const value = stripQuotes(rawValue);
+      result[key] = preserveStrings ? value : coerceScalar(value);
     });
     return result;
   }
@@ -320,6 +342,7 @@
     csv: parseCSV,
     xml: parseXML,
     yaml: parseYAML,
+    'rancher-yaml': parseYAML,
     env: parseENV,
   };
 
@@ -328,6 +351,7 @@
     csv: serializeCSV,
     xml: serializeXML,
     yaml: serializeYAML,
+    'rancher-yaml': serializeRancherYAML,
     env: serializeENV,
   };
 
@@ -339,7 +363,10 @@
 
     let value;
     try {
-      value = parser(text);
+      // ENV values are text: keep leading zeros and large integers intact.
+      value = fromFormat === 'env' && toFormat === 'rancher-yaml'
+        ? parseENV(text, true)
+        : parser(text);
     } catch (err) {
       throw new Error(`Failed to parse ${fromFormat.toUpperCase()}: ${err.message}`);
     }
