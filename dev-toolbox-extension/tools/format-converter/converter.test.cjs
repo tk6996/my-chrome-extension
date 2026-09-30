@@ -38,8 +38,25 @@ test('JSON nested config and env lists stringify numeric/boolean values', () => 
 test('quotes, punctuation, unicode and multiline strings survive serialization', () => {
   const input = { QUOTE: "it's fine", URL: 'https://example.com/#part', THAI: 'ทดสอบ', MULTI: 'first\nsecond' };
   const output = Converter.convert(JSON.stringify(input), 'json', 'rancher-yaml');
-  assert.match(output, /QUOTE: 'it''s fine'/);
+  assert.match(output, /QUOTE: it's fine/);
   assert.deepEqual(load(output), input);
+});
+
+test('ordinary text is unquoted while typed-looking values remain quoted', () => {
+  const source = 'HOST=localhost\nMODE=production\nPORT=8080\nDEBUG=true\nMESSAGE=hello: world';
+  const converted = Converter.convert(source, 'env', 'rancher-yaml');
+  for (const output of [converted,
+    Converter.reformat(converted, 'rancher-yaml', { minify: false }),
+    Converter.reformat(converted, 'rancher-yaml', { minify: true })]) {
+    assert.match(output, /HOST: localhost/);
+    assert.match(output, /MODE: production/);
+    assert.match(output, /PORT: '8080'/);
+    assert.match(output, /DEBUG: 'true'/);
+    assert.match(output, /MESSAGE: 'hello: world'/);
+    assert.deepEqual(load(output), {
+      HOST: 'localhost', MODE: 'production', PORT: '8080', DEBUG: 'true', MESSAGE: 'hello: world',
+    });
+  }
 });
 
 test('Pretty and Minify retain Rancher string values', () => {

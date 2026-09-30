@@ -50,7 +50,6 @@
   function serializeRancherYAML(value, opts) {
     return jsyaml.dump(stringifyConfigScalars(value), {
       lineWidth: -1,
-      forceQuotes: true,
       quotingType: "'",
       flowLevel: opts && opts.minify ? 0 : -1,
     }).trimEnd();
